@@ -97,7 +97,7 @@ Devise.setup do |config|
   # Notice that if you are skipping storage for all authentication paths, you
   # may want to disable generating routes to Devise's sessions controller by
   # passing skip: :sessions to `devise_for` in your config/routes.rb
-  config.skip_session_storage = [:http_auth]
+  config.skip_session_storage = [ :http_auth, :params_auth ]
 
   # By default, Devise cleans up the CSRF token on authentication to
   # avoid CSRF token fixation attacks. This means that, when using AJAX
@@ -264,6 +264,7 @@ Devise.setup do |config|
   #
   # The "*/*" below is required to match Internet Explorer requests.
   # config.navigational_formats = ['*/*', :html, :turbo_stream]
+  config.navigational_formats = [ :json ]
 
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
@@ -310,4 +311,25 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+
+  # config/initializers/devise.rb (within the Devise.setup block)
+
+  config.jwt do |jwt|
+    jwt.secret = Rails.application.credentials.devise_jwt_secret_key || ENV['DEVISE_JWT_SECRET_KEY']
+    # Define how Devise-JWT finds the token in requests
+    jwt.dispatch_requests = [
+      ['Authorization', /^Bearer (.*)$/i] # Standard Bearer token format
+    ]
+    # Define how Devise-JWT revokes tokens (logout)
+    jwt.revocation_requests = [
+      ['DELETE', %r{^/api/v1/logout/?$}] # Match the logout route
+    ]
+    # Choose a revocation strategy. Denylist is common for explicit logout.
+    # jwt.revocation_strategy = Devise::JWT::RevocationStrategies::Denylist # Or ::JTIMatcher, ::Null
+
+    # Set token expiration time
+    jwt.expiration_time = 8.hours.to_i # Adjust as needed (e.g., 15.minutes, 1.day)
+  end
+
+
 end
