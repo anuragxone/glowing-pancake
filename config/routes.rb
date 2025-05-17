@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   namespace :api do
     namespace :v1 do
@@ -8,7 +9,8 @@ Rails.application.routes.draw do
       devise_for :users, path: "", path_names: {
         sign_in: "login",      # /api/v1/login
         sign_out: "logout",    # /api/v1/logout
-        registration: "signup" # /api/v1/signup
+        registration: "signup", # /api/v1/signup
+        # confirmation: "confirmation"
       }, controllers: {
         sessions: "api/v1/sessions",
         registrations: "api/v1/registrations"
@@ -23,5 +25,5 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "application#index"
 end

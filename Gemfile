@@ -55,3 +55,7 @@ gem "devise-jwt", "~> 0.12.1"
 gem "dotenv-rails", "~> 3.1"
 
 gem "jsonapi-serializer", "~> 2.2"
+
+gem "letter_opener", "~> 1.10", group: :development
+
+gem "letter_opener_web", "~> 3.0", group: :development

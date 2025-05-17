@@ -19,17 +19,19 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
 
   def sign_up_params
     # expects JSON:API format
-    params.require(:data).require(:attributes).permit(:name, :email, :password, :password_confirmation)
+    # request.body.read
+    params.expect(user: [ :name, :email, :password, :password_confirmation ])
   end
 
   def respond_with(resource, _opts = {})
     if resource.persisted?
-      token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil)[0]
+      # token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil)[0]
+      data = UserSerializer.new(resource).serializable_hash[:data][:attributes]
 
       render json: {
-        status: { code: 200, message: 'Signed up successfully.' },
-        data: UserSerializer.new(resource).serializable_hash[:data][:attributes],
-        token: token
+        # status: { code: 200, message: 'Signed up successfully.' },
+        data: data
+        # token: token
       }, status: :ok
     else
       render json: {
